@@ -45,11 +45,14 @@ def add_record():
         new_album = request.forms.get("new_album")
         new_genre = request.forms.get("new_genre")
         new_year = int(request.forms.get("new_year"))
-        if new_year < 1900 or new_year > 2020 or not album.is_valid(new_artist, new_album, new_genre, new_year):
+        if new_year < 1900 or new_year > 2020 or new_artist == "" or new_album == "" or new_genre == "" or new_year == "":
             raise ValueError
+        if not album.is_valid(new_artist, new_album, new_genre, new_year):
+            raise AttributeError
     except ValueError:
         result = HTTPError(406, "Проверьте введенные данные. Все поля должны быть заполнены, поле Year должно быть в диапазоне от 1900 до 2020 включительно.")
-    
+    except AttributeError:
+        result = HTTPError(409, "Похоже, что данный альбом уже есть в базе")
     # если проверка прошла, то запись в базу данных
     else:
         album.add_record(new_artist, new_album, new_genre, new_year)
